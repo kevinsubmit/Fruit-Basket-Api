@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["customer", "admin"],
-    default: "guest",
+    default: "customer",
     required: true,
   },
 });
@@ -23,7 +23,7 @@ userSchema.methods.isCustomer = function () {
   return this.role === "customer";
 };
 
-userSchema.methods.isGuest = function () {
+userSchema.methods.isAdmin = function () {
   return this.role === "admin";
 };
 
