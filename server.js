@@ -1,11 +1,11 @@
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 dotenv.config();
-const cors = require('cors');
-const express = require('express');
+import cors from 'cors';
+import express from 'express';
 const app = express();
-const mongoose = require('mongoose');
-const usersRouter = require('./controllers/users');
-const profilesRouter = require('./controllers/profiles');
+import mongoose from 'mongoose';
+import usersRouter  from './controllers/users.js';
+import profilesRouter from './controllers/profiles.js';
 
 mongoose.connect(process.env.MONGODB_URI);
 
