@@ -12,20 +12,13 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["customer", "admin"],
-    default: "guest",
+    enum: ["customer", "admin"], //new add
+    default: "customer",
     required: true,
   },
 });
-// distribute two roles
 
-userSchema.methods.isCustomer = function () {
-  return this.role === "customer";
-};
 
-userSchema.methods.isGuest = function () {
-  return this.role === "admin";
-};
 
 userSchema.set("toJSON", {
   transform: (document, returnedObject) => {
