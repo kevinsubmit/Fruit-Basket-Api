@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const User = require('../models/user');
-const jwt = require('jsonwebtoken');
+import bcrypt from 'bcrypt';
+import User from '../models/user.js';
+import jwt  from 'jsonwebtoken';
 
 
 const SALT_LENGTH = 12;
@@ -40,4 +40,4 @@ router.post('/signin', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
