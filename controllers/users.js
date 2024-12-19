@@ -4,9 +4,7 @@ import bcrypt from 'bcrypt';
 import User from '../models/user.js';
 import jwt  from 'jsonwebtoken';
 
-
 const SALT_LENGTH = 12;
-
 router.post('/signup', async (req, res) => {
     try {
         // Check if the username is already taken
@@ -22,7 +20,12 @@ router.post('/signup', async (req, res) => {
         const token = jwt.sign({ username: user.username, _id: user._id }, process.env.JWT_SECRET);
         res.status(201).json({ user, token });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.log(111);
+        res.status(400).json({
+            message:error.message,
+            data:{},
+            status:405
+        });
     }
 });
 
