@@ -5,11 +5,10 @@ import express from 'express';
 const app = express();
 import mongoose from 'mongoose';
 import usersRouter  from './controllers/users.js';
-import profilesRouter from './controllers/profiles.js';
 
 import productsRouter from './controllers/products.js'
 
-import errorHandler from './middleware/error-handler.js'
+import errorHandler from './middleware/errorHandler.js'
 
 
 mongoose.connect(process.env.MONGODB_URI);
@@ -23,7 +22,6 @@ app.use(express.json());
 // Routes go here
 
 app.use('/users', usersRouter);
-app.use('/profiles', profilesRouter);
 app.use('/products',productsRouter)
 
 
