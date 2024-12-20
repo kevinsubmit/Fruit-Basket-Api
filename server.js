@@ -6,7 +6,11 @@ const app = express();
 import mongoose from 'mongoose';
 import usersRouter  from './controllers/users.js';
 import profilesRouter from './controllers/profiles.js';
+
 import productsRouter from './controllers/products.js'
+
+import errorHandler from './middleware/error-handler.js'
+
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -21,6 +25,10 @@ app.use(express.json());
 app.use('/users', usersRouter);
 app.use('/profiles', profilesRouter);
 app.use('/products',productsRouter)
+
+
+// error middeware
+app.use(errorHandler);
 
 app.listen(process.env.PORT, () => {
     console.log('The express app is ready!');

@@ -12,12 +12,20 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
+
     enum: ["customer", "admin"], //new add
+
     default: "customer",
     required: true,
   },
 });
 
+
+
+
+userSchema.methods.isAdmin = function () {
+  return this.role === "admin";
+};
 
 
 userSchema.set("toJSON", {
