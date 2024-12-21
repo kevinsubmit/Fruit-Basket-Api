@@ -15,6 +15,14 @@ router.get("/", verifyToken, async (req, res) => {
     res.status(500).json(error);
   }
 });
+router.get("/:productId", verifyToken, async (req, res) => {
+  try {
+    const products = await Product.findById(req.params.productId);
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
 
 // Only admin can create products
 router.post(
