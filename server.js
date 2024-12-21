@@ -6,9 +6,10 @@ const app = express();
 import mongoose from 'mongoose';
 import usersRouter  from './controllers/users.js';
 
-import productsRouter from './controllers/products.js'
-
-import errorHandler from './middleware/errorHandler.js'
+import productsRouter from './controllers/products.js';
+import orderRouter from './controllers/order.js';
+import reviewRouter from './controllers/review.js';
+import errorHandler from './middleware/errorHandler.js';
 
 
 mongoose.connect(process.env.MONGODB_URI);
@@ -18,11 +19,15 @@ mongoose.connection.on('connected', () => {
 });
 app.use(cors());
 app.use(express.json());
+// 提供访问图片的静态文件夹
+app.use('/uploads', express.static('uploads'));
 
 // Routes go here
 
 app.use('/users', usersRouter);
-app.use('/products',productsRouter)
+app.use('/products',productsRouter);
+app.use('/order',orderRouter);
+app.use('/review',reviewRouter);
 
 
 // error middeware
