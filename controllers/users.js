@@ -5,7 +5,7 @@ import User from "../models/user.js";
 import jwt from "jsonwebtoken";
 
 const SALT_LENGTH = 12;
-router.post("/signup", verifyToken, checkAdmin, async (req, res, next) => {
+router.post("/signup", async (req, res, next) => {
   try {
     const { username, password, role } = req.body;
 
