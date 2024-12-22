@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import usersRouter  from './controllers/users.js';
 
 import productsRouter from './controllers/products.js';
-import orderRouter from './controllers/order.js';
+import ordersRouter from './controllers/orders.js';
 import reviewRouter from './controllers/review.js';
 import errorHandler from './middleware/errorHandler.js';
 
@@ -26,7 +26,7 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/users', usersRouter);
 app.use('/products',productsRouter);
-app.use('/order',orderRouter);
+app.use('/orders',ordersRouter);
 app.use('/review',reviewRouter);
 
 
