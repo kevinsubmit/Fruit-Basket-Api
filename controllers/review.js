@@ -8,12 +8,15 @@ const router = express.Router();
 // ========= Protected Routes =========
 router.get("/:productId", verifyToken, async (req, res) => {
   try {
-    const product = await Product.findById(req.params.productId);
+    const product = await Product.findById(req.params.productId).populate({
+      path: "reviews.user_id",
+      select: "username",
+    });
     if (!product) {
       return res.status(404).json({ message: "The product not found" });
     }
 
-    const { _id, role ,username} = req.user;
+    const { _id, role } = req.user;
     const reviews = product.reviews.map((review) => {
       // 判断是否有权限操作评论
       let isOperate = false;
@@ -32,20 +35,16 @@ router.get("/:productId", verifyToken, async (req, res) => {
       return {
         ...review.toObject(), // 保证评论的其他属性被保留
         isOperate,
-        username
+        username:review.user_id.username,
       };
     });
-
-    console.log(reviews);
     res.status(200).json(reviews);
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({
-        message: "Error retrieving product reviews",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error retrieving product reviews",
+      error: error.message,
+    });
   }
 });
 
