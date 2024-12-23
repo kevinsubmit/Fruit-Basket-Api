@@ -11,11 +11,14 @@ router.get("/", verifyToken, async (req, res) => {
   try {
     const { _id, role } = req.user;
     if (role === "admin") {
-      const orders = await Order.find({});
+      const orders = await Order.find({}).populate({
+        path: "orderItems_id",
+        populate: { path: "product_id", model: "Product" },
+      });
       return res.status(200).json(orders);
     }
 
-    const orders = await Order.find({ user_id: _id });
+    const orders = await Order.find({ user_id: _id }).populate("orderItems_id");
     if (orders.length === 0) {
       return res.status(404).json({ message: "No orders found for this user" });
     }
