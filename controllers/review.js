@@ -35,6 +35,7 @@ router.get("/:productId", verifyToken, async (req, res) => {
       };
     });
 
+    reviews.username = req.user.username;
     res.status(200).json(reviews);
   } catch (error) {
     console.log(error);
