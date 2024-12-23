@@ -13,7 +13,7 @@ router.get("/:productId", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "The product not found" });
     }
 
-    const { _id, role } = req.user;
+    const { _id, role ,username} = req.user;
     const reviews = product.reviews.map((review) => {
       // 判断是否有权限操作评论
       let isOperate = false;
@@ -32,10 +32,11 @@ router.get("/:productId", verifyToken, async (req, res) => {
       return {
         ...review.toObject(), // 保证评论的其他属性被保留
         isOperate,
+        username
       };
     });
 
-    reviews.username = req.user.username;
+    console.log(reviews);
     res.status(200).json(reviews);
   } catch (error) {
     console.log(error);
