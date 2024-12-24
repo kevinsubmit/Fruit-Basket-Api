@@ -8,10 +8,10 @@ const router = express.Router();
 // ========= Protected Routes =========
 router.get("/:productId", verifyToken, async (req, res) => {
   try {
-    const product = await Product.findById(req.params.productId).populate({
-      path: "reviews.user_id",
-      select: "username",
-    });
+    const product = await Product.findById(req.params.productId).populate(
+     "reviews.user_id",
+      "username",
+    );
     if (!product) {
       return res.status(404).json({ message: "The product not found" });
     }
