@@ -3,6 +3,7 @@ import verifyToken from "../middleware/verifyToken.js";
 import checkAdmin from "../middleware/checkAdmin.js";
 import uploadPic from "../middleware/uploadPic.js";
 import {Product} from "../models/product.js";
+import Order from "../models/order.js";
 
 const router = express.Router();
 
@@ -62,7 +63,10 @@ router.delete("/:productId", verifyToken, checkAdmin, async (req, res) => {
     for (const order of orders) {
       let updated = false;
       for (const item of order.orderItems_id) {
-        if (item.product_id && item.product_id._id.toString() === productId) {
+        if (
+          item.product_id &&
+          item.product_id._id.toString() === req.params.productId
+        ) {
           item.isDeleted = true; // 软删除商品项
           updated = true;
         }
