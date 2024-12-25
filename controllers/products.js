@@ -50,9 +50,37 @@ router.delete("/:productId", verifyToken, checkAdmin, async (req, res) => {
     const deletedProduct = await Product.findByIdAndDelete(
       req.params.productId
     );
-    res.status(200).json(deletedProduct);
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // 2. 更新订单中的相关商品项
+    const orders = await Order.find({
+      "orderItems_id.product_id": productId,
+    }).populate("orderItems_id.product_id");
+
+    for (const order of orders) {
+      let updated = false;
+      for (const item of order.orderItems_id) {
+        if (item.product_id && item.product_id._id.toString() === productId) {
+          item.isDeleted = true; // 软删除商品项
+          updated = true;
+        }
+      }
+
+      if (updated) {
+        await order.save();
+      }
+    }
+
+    res
+      .status(200)
+      .json({ message: "Product deleted and orders updated successfully." });
   } catch (error) {
-    res.status(500).json(error);
+    console.error("Error deleting product:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to delete product.", error: error.message });
   }
 });
 
