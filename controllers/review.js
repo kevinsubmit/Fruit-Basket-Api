@@ -51,7 +51,7 @@ router.get("/:productId", verifyToken, async (req, res) => {
 router.post("/", verifyToken, async (req, res) => {
   try {
     const { product_id, user_id } = req.body;
-    const { _id } = req.user;
+    const { _id,username} = req.user;
 
     // 1. 验证用户身份：确保请求中的 userId 和当前用户一致
     if (user_id.toString() !== _id.toString()) {
@@ -94,13 +94,16 @@ router.post("/", verifyToken, async (req, res) => {
 
     // 5. 创建评论
     const review = await Review.create(req.body);
+   
 
     // 6. 将评论添加到产品的 reviews 数组中
     product.reviews.push(review);
     await product.save();
-
+    const reviewData = {
+      ...review.toObject(),username
+    }
     // 7. 返回评论
-    res.status(201).json(review);
+    res.status(201).json(reviewData);
   } catch (error) {
     console.log(error);
     res
