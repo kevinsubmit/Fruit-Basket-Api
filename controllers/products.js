@@ -51,38 +51,17 @@ router.post(
 // Only admin can delete product
 router.delete("/:productId", verifyToken, checkAdmin, async (req, res) => {
   try {
-    const deletedProduct = await Product.findByIdAndDelete(
-      req.params.productId
-    );
+    const productId = req.params.productId;
+     if (!productId) {
+       return res.status(400).json({ message: "Invalid product ID" });
+     }
+    const deletedProduct = await Product.findByIdAndDelete(productId);
     if (!deletedProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
-
-    // 2. 更新订单中的相关商品项
-    const orders = await Order.find({
-      "orderItems_id.product_id": productId,
-    }).populate("orderItems_id.product_id");
-
-    for (const order of orders) {
-      let updated = false;
-      for (const item of order.orderItems_id) {
-        if (
-          item.product_id &&
-          item.product_id._id.toString() === req.params.productId
-        ) {
-          item.isDeleted = true; // 软删除商品项
-          updated = true;
-        }
-      }
-
-      if (updated) {
-        await order.save();
-      }
-    }
-
     res
       .status(200)
-      .json({ message: "Product deleted and orders updated successfully." });
+      .json({ message: "Product deleted  successfully." });
   } catch (error) {
     console.error("Error deleting product:", error);
     res
