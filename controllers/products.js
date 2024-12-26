@@ -3,7 +3,13 @@ import verifyToken from "../middleware/verifyToken.js";
 import checkAdmin from "../middleware/checkAdmin.js";
 import uploadPic from "../middleware/uploadPic.js";
 import {Product} from "../models/product.js";
+
+import Order from "../models/order.js";
+import cloudinary from 'cloudinary';
+
+
 import uploadToCloudinary from "../utils/cloudinaryConfig.js";
+
 const router = express.Router();
 
 // ========= Protected Routes =========
@@ -25,13 +31,42 @@ router.get("/:productId", verifyToken, async (req, res) => {
 });
 
 // Only admin can create products
+// 上传和保存产品信息路由
 router.post(
   "/",
-  verifyToken,
-  checkAdmin,
-  uploadPic.single("image"),
+  verifyToken,  // 验证用户的 token
+  checkAdmin,   // 检查是否是管理员
+  uploadPic.single("image"),  // 处理上传的单个文件
   async (req, res) => {
     try {
+
+      let image_url = null;
+
+      // 如果上传了图片，将图片上传到 Cloudinary
+      if (req.file) {
+        // 将图片上传到 Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path);
+
+        // 获取 Cloudinary 返回的图片 URL
+        image_url = result.secure_url;
+      } else {
+        // 如果没有上传图片，设置默认图片 URL
+        image_url = "https://images.app.goo.gl/zqRC2HVoM5uXEq3J8";
+      }
+
+    
+      // 将图片 URL 保存在 req.body 中
+      req.body.image_url = image_url;
+
+      // 将其他表单数据与图片信息一起保存到数据库
+      const product = await Product.create(req.body);
+
+      // 返回创建的产品数据
+      res.status(201).json(product);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
+
       
       const { image_url, name, description, price } = req.body;
 
@@ -51,6 +86,7 @@ router.post(
     } catch (error) {
       console.error(error);
       res.status(500).json(error);
+
     }
   }
 );
