@@ -34,7 +34,10 @@ router.post(
   async (req, res) => {
     try {
       // 将图片的相对路径保存在 image_url 字段中 keep the picture path in the image_url filed
-      const image_url = req.file ? `/uploads/${req.file.filename}` : "https://images.app.goo.gl/zqRC2HVoM5uXEq3J8"; // 如果上传了图片，保存相对路径
+      // const image_url = req.file ? `/uploads/${req.file.filename}` : "https://images.app.goo.gl/zqRC2HVoM5uXEq3J8"; // 如果上传了图片，保存相对路径
+      const image_url = req.file
+        ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+        : `${req.protocol}://${req.get("host")}/uploads/default.jpg`;
       req.body.image_url = image_url;
       const product = await Product.create(req.body);
       res.status(201).json(product);
