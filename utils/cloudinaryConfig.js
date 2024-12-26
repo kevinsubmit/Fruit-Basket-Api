@@ -11,25 +11,25 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
-
 const uploadToCloudinary = (file) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      { resource_type: "auto" }, // 自动处理文件类型（图片、视频等）
+      {
+        resource_type: "auto", // 自动识别文件类型（图片、视频等）
+        public_id: file.originalname, // 使用原始文件名作为 public_id（可选）
+      },
       (error, result) => {
         if (error) {
-          reject(error); // 上传失败时返回错误
-        } else {
-          resolve(result); // 上传成功时返回结果
+          return reject(error);
         }
+        resolve(result); // 返回上传后的结果（包括 secure_url）
       }
     );
 
-    // 创建可读流，将文件数据传输到 Cloudinary 上传流
-    const bufferStream = new stream.PassThrough();
-    bufferStream.end(file.buffer); // 上传文件的数据
-    bufferStream.pipe(uploadStream); // 将文件流传给 Cloudinary 上传流
+    // 直接将文件的 buffer 传递给 upload_stream
+    uploadStream.end(file.buffer); // 结束并上传文件
   });
 };
+
 
 export default uploadToCloudinary;
