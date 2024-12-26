@@ -33,22 +33,20 @@ router.post(
   async (req, res) => {
     try {
       
-      let image_url = "";
+      const { image_url, name, description, price } = req.body;
 
-     // 如果上传了图片，使用 Cloudinary 上传图片
-      if (req.file) {
-        const uploadResult = await uploadToCloudinary(req.file);
-        image_url = uploadResult.secure_url; // 获取 Cloudinary 返回的安全 URL
-      } else {
-        image_url = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1/default.jpg'; // 如果没有上传图片，使用默认图片
-      }
-
-
-      // 将图片 URL 添加到请求体中
-      req.body.image_url = image_url;
+    const finalImageUrl =
+      image_url ||
+      "https://res.cloudinary.com/your-cloud-name/image/upload/v1/default.jpg";
+     
 
       // 创建新的产品记录
-      const product = await Product.create(req.body);
+      const product = await Product.create({
+        name,
+        description,
+        price,
+        image_url: finalImageUrl,
+      });
       res.status(201).json(product);
     } catch (error) {
       console.error(error);
@@ -90,20 +88,19 @@ router.put(
   async (req, res) => {
     try {
       const { productId } = req.params;
-      const updatedData = { ...req.body };
+      const { name, description, price, image_url } = req.body;
 
-      // 如果上传了新图片，则通过 Cloudinary 上传图片
-      if (req.file) {
-        const uploadResult = await uploadToCloudinary(req.file);
-        updatedData.image_url = uploadResult.secure_url;
-      }
+      // 如果没有传递新的图片 URL，保留现有的图片 URL 或使用默认值
+      const finalImageUrl =
+        image_url ||
+        "https://res.cloudinary.com/your-cloud-name/image/upload/v1/default.jpg";
 
-     
+      
 
       // 更新产品信息
       const updatedProduct = await Product.findByIdAndUpdate(
         productId,
-        updatedData,
+        { name, description, price, image_url: finalImageUrl },
         { new: true } // 返回更新后的产品
       );
 
@@ -121,4 +118,28 @@ router.put(
     }
   }
 );
+
+router.post(
+  "/upload",
+  checkAdmin,
+  verifyToken,
+  uploadPic.single("image"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded." });
+      }
+
+      // 上传图片到 Cloudinary
+      const uploadResult = await uploadToCloudinary(req.file);
+      res.status(200).json({ image_url: uploadResult.secure_url });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      res
+        .status(500)
+        .json({ message: "Failed to upload image", error: error.message });
+    }
+  }
+);
+
 export default router;
