@@ -3,8 +3,7 @@ import verifyToken from "../middleware/verifyToken.js";
 import checkAdmin from "../middleware/checkAdmin.js";
 import uploadPic from "../middleware/uploadPic.js";
 import {Product} from "../models/product.js";
-import Order from "../models/order.js";
-
+import uploadToCloudinary from "../utils/cloudinaryConfig.js";
 const router = express.Router();
 
 // ========= Protected Routes =========
@@ -33,42 +32,53 @@ router.post(
   uploadPic.single("image"),
   async (req, res) => {
     try {
-      // 将图片的相对路径保存在 image_url 字段中 keep the picture path in the image_url filed
-      // const image_url = req.file ? `/uploads/${req.file.filename}` : "https://images.app.goo.gl/zqRC2HVoM5uXEq3J8"; // 如果上传了图片，保存相对路径
-      const image_url = req.file
-        ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
-        : `${req.protocol}://${req.get("host")}/uploads/default.jpg`;
+      
+      let image_url = "";
+
+     // 如果上传了图片，使用 Cloudinary 上传图片
+      if (req.file) {
+        const uploadResult = await uploadToCloudinary(req.file);
+        image_url = uploadResult.secure_url; // 获取 Cloudinary 返回的安全 URL
+      } else {
+        image_url = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1/default.jpg'; // 如果没有上传图片，使用默认图片
+      }
+
+
+      // 将图片 URL 添加到请求体中
       req.body.image_url = image_url;
+
+      // 创建新的产品记录
       const product = await Product.create(req.body);
       res.status(201).json(product);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       res.status(500).json(error);
     }
   }
 );
 
-// Only admin can delete product
-router.delete("/:productId", verifyToken, checkAdmin, async (req, res) => {
-  try {
-    const productId = req.params.productId;
-     if (!productId) {
-       return res.status(400).json({ message: "Invalid product ID" });
+   // Only admin can delete product
+   router.delete("/:productId", verifyToken, checkAdmin, async (req, res) => {
+     try {
+       console.log(111);
+       const { productId } = req.params;
+       console.log(productId);
+       if (!productId) {
+         return res.status(400).json({ message: "Invalid product ID" });
+       }
+       const deletedProduct = await Product.findByIdAndDelete(productId);
+       console.log("Deleted Product:", deletedProduct);
+       if (!deletedProduct) {
+         return res.status(404).json({ message: "Product not found" });
+       }
+       res.status(200).json({ message: "Product deleted  successfully." });
+     } catch (error) {
+       console.error("Error deleting product:", error);
+       res
+         .status(500)
+         .json({ message: "Failed to delete product.", error: error.message });
      }
-    const deletedProduct = await Product.findByIdAndDelete(productId);
-    if (!deletedProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-    res
-      .status(200)
-      .json({ message: "Product deleted  successfully." });
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to delete product.", error: error.message });
-  }
-});
+   });
 
 // Only admin can update product
 // 更新产品的路由，支持图片上传
@@ -82,19 +92,26 @@ router.put(
       const { productId } = req.params;
       const updatedData = { ...req.body };
 
-      // 如果上传了新图片，则更新 image_url 字段
+      // 如果上传了新图片，则通过 Cloudinary 上传图片
       if (req.file) {
-        updatedData.image_url = `/uploads/${req.file.filename}`; // 设置图片的路径
+        const uploadResult = await uploadToCloudinary(req.file);
+        updatedData.image_url = uploadResult.secure_url;
       }
 
+     
+
+      // 更新产品信息
       const updatedProduct = await Product.findByIdAndUpdate(
         productId,
         updatedData,
-        { new: true }
+        { new: true } // 返回更新后的产品
       );
+
       if (!updatedProduct) {
         return res.status(404).json({ message: "Product not found" });
       }
+
+      // 返回更新后的产品数据
       res.status(200).json(updatedProduct);
     } catch (error) {
       console.log(error);
@@ -104,5 +121,4 @@ router.put(
     }
   }
 );
-
 export default router;
