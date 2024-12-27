@@ -32,6 +32,7 @@ router.post(
   checkAdmin, // 检查是否是管理员
   uploadPic.single("image"), // 处理上传的单个文件
   async (req, res) => {
+    console.log(1112222);
     try {
       let image_url = null;
 
