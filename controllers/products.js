@@ -2,9 +2,9 @@ import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import checkAdmin from "../middleware/checkAdmin.js";
 import uploadPic from "../middleware/uploadPic.js";
-import {Product} from "../models/product.js";
+import { Product } from "../models/product.js";
 import Order from "../models/order.js";
-import cloudinary from 'cloudinary';
+import cloudinary from "cloudinary";
 import fs from "fs";
 const router = express.Router();
 // ========= Protected Routes =========
@@ -28,20 +28,23 @@ router.get("/:productId", verifyToken, async (req, res) => {
 // 上传和保存产品信息路由
 router.post(
   "/",
-  verifyToken,  // 验证用户的 token
-  checkAdmin,   // 检查是否是管理员
-  uploadPic.single("image"),  // 处理上传的单个文件
+  verifyToken, // 验证用户的 token
+  checkAdmin, // 检查是否是管理员
+  uploadPic.single("image"), // 处理上传的单个文件
   async (req, res) => {
     try {
       let image_url = null;
+
+      console.log(req.body)
       // 如果上传了图片，将图片上传到 Cloudinary
       if (req.file) {
+        console.log(req.body)
         // 将图片上传到 Cloudinary
         const result = await cloudinary.uploader.upload(req.file.path);
         // 获取 Cloudinary 返回的图片 URL
         image_url = result.secure_url;
         // 删除上传到服务器的临时文件
-        await fs. promises.unlink(req.file.path); 
+        await fs.promises.unlink(req.file.path);
       } else {
         // 如果没有上传图片，设置默认图片 URL
         image_url = "https://images.app.goo.gl/zqRC2HVoM5uXEq3J8";
@@ -54,7 +57,7 @@ router.post(
       res.status(201).json(product);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: "Server error" });
     }
   }
 );
