@@ -41,7 +41,7 @@ router.post(
         // 获取 Cloudinary 返回的图片 URL
         image_url = result.secure_url;
         // 删除上传到服务器的临时文件
-        fs.unlinkSync(req.file.path); 
+        await fs. promises.unlink(req.file.path); 
       } else {
         // 如果没有上传图片，设置默认图片 URL
         image_url = "https://images.app.goo.gl/zqRC2HVoM5uXEq3J8";
