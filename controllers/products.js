@@ -5,6 +5,7 @@ import uploadPic from "../middleware/uploadPic.js";
 import {Product} from "../models/product.js";
 import Order from "../models/order.js";
 import cloudinary from 'cloudinary';
+import fs from "fs";
 const router = express.Router();
 // ========= Protected Routes =========
 router.get("/", verifyToken, async (req, res) => {
@@ -39,6 +40,8 @@ router.post(
         const result = await cloudinary.uploader.upload(req.file.path);
         // 获取 Cloudinary 返回的图片 URL
         image_url = result.secure_url;
+        // 删除上传到服务器的临时文件
+        fs.unlinkSync(req.file.path); 
       } else {
         // 如果没有上传图片，设置默认图片 URL
         image_url = "https://images.app.goo.gl/zqRC2HVoM5uXEq3J8";
