@@ -20,26 +20,30 @@ const reviewSchema = new mongoose.Schema(
 
 const productSchema = new mongoose.Schema(
   {
-  name: {
-    type: String,
-    unique: true,
-    required: true,
+    name: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    image_url: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    reviews: [reviewSchema],
   },
-  image_url: {
-    type: String,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  reviews: [reviewSchema],
-},
-{ timestamps: true }
+  { timestamps: true }
 );
 
 const Review = mongoose.model("Review", reviewSchema);

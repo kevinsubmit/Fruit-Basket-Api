@@ -76,49 +76,4 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
-
-// order.js (后端路由)
-router.post("/orders/update", verifyToken, checkAdmin, async (req, res) => {
-  try {
-    const { productId } = req.body;
-
-    if (!productId) {
-      return res.status(400).json({ message: "Product ID is required." });
-    }
-
-    // 查找所有包含该商品的订单
-    const orders = await Order.find({
-      "orderItems_id.product_id": productId,
-    }).populate("orderItems_id.product_id");
-
-    if (orders.length === 0) {
-      return res.status(404).json({ message: "No orders found for this product." });
-    }
-
-    // 更新订单中的商品项，软删除商品
-    for (const order of orders) {
-      let updated = false;
-      for (const item of order.orderItems_id) {
-        if (item.product_id && item.product_id._id.toString() === productId) {
-          item.isDeleted = true; // 软删除商品项
-          updated = true;
-        }
-      }
-
-      if (updated) {
-        await order.save();
-      }
-    }
-
-    res.status(200).json({ message: "Orders updated with deleted product." });
-  } catch (error) {
-    console.error("Error updating orders with deleted product:", error);
-    res.status(500).json({ message: "Failed to update orders with deleted product.", error: error.message });
-  }
-});
-
-
-
-
-
 export default router;
