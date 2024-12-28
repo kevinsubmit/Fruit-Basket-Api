@@ -12,12 +12,7 @@ const orderItemSchema = new mongoose.Schema({
   purchasePrice: {
     type: Number,
     required: true,
-  },
-  isDeleted: {
-    // 新增字段，用于标记商品是否被删除
-    type: Boolean,
-    default: false,
-  },
+  }
 });
 
 const OrderItem = mongoose.model("OrderItem", orderItemSchema);
