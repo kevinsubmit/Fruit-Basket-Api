@@ -74,17 +74,15 @@ router.post("/", verifyToken, async (req, res) => {
     // 如果没有找到订单项，说明用户没有购买过该产品
     if (!orderItem) {
       return res.status(403).json({
-        message: "You must have purchased this product to leave a review.",
+        message: "You  have not purchased this product.",
       });
     }
 
     // 4. 查找用户的订单，并确保该订单的 status 为 'paid'，并且订单中包含对应的 orderItem
     const order = await Order.findOne({
       user_id: _id, // 当前用户
-      "orderItems_id.product_id": product_id, // 检查订单中的 orderItems_id 数组是否包含该 OrderItem
       status: "paid", // 确保订单的状态为 "paid"
     });
-
     if (!order) {
       return res.status(403).json({
         message:
