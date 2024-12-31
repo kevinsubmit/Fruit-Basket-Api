@@ -81,7 +81,7 @@ router.post("/", verifyToken, async (req, res) => {
     // 4. 查找用户的订单，并确保该订单的 status 为 'paid'，并且订单中包含对应的 orderItem
     const order = await Order.findOne({
       user_id: _id, // 当前用户
-      orderItems_id: { $in : [orderItem._id]}, // 检查订单中的 orderItems_id 数组是否包含该 OrderItem
+      "orderItems_id.product_id": product_id, // 检查订单中的 orderItems_id 数组是否包含该 OrderItem
       status: "paid", // 确保订单的状态为 "paid"
     });
 
