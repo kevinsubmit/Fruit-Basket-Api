@@ -54,12 +54,12 @@ router.post("/", verifyToken, async (req, res) => {
     const { _id,username} = req.user;
 
     // 1. 验证用户身份：确保请求中的 userId 和当前用户一致
-    if (user_id.toString() !== _id.toString()) {
+    if (String(user_id) !== String(_id)) {
       return res.status(403).json({
         message: "Forbidden: You can only create reviews for yourself",
       });
     }
-
+    
     // 2. 检查产品是否存在
     const product = await Product.findById(product_id);
     if (!product) {
