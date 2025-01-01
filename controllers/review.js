@@ -9,8 +9,8 @@ const router = express.Router();
 router.get("/:productId", verifyToken, async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId).populate(
-     "reviews.user_id",
-      "username",
+      "reviews.user_id",
+      "username"
     );
     if (!product) {
       return res.status(404).json({ message: "The product not found" });
@@ -35,7 +35,7 @@ router.get("/:productId", verifyToken, async (req, res) => {
       return {
         ...review.toObject(), // 保证评论的其他属性被保留
         isOperate,
-        username:review.user_id.username,
+        username: review.user_id.username,
       };
     });
     res.status(200).json(reviews);
@@ -51,7 +51,7 @@ router.get("/:productId", verifyToken, async (req, res) => {
 router.post("/", verifyToken, async (req, res) => {
   try {
     const { product_id, user_id } = req.body;
-    const { _id,username} = req.user;
+    const { _id, username } = req.user;
 
     // 1. 验证用户身份：确保请求中的 userId 和当前用户一致
     if (String(user_id) !== String(_id)) {
@@ -59,7 +59,7 @@ router.post("/", verifyToken, async (req, res) => {
         message: "Forbidden: You can only create reviews for yourself",
       });
     }
-    
+
     // 2. 检查产品是否存在
     const product = await Product.findById(product_id);
     if (!product) {
@@ -92,14 +92,14 @@ router.post("/", verifyToken, async (req, res) => {
 
     // 5. 创建评论
     const review = await Review.create(req.body);
-   
 
     // 6. 将评论添加到产品的 reviews 数组中
     product.reviews.push(review);
     await product.save();
     const reviewData = {
-      ...review.toObject(),username
-    }
+      ...review.toObject(),
+      username,
+    };
     // 7. 返回评论
     res.status(201).json(reviewData);
   } catch (error) {
@@ -125,7 +125,7 @@ router.put("/:reviewId", verifyToken, async (req, res) => {
 
     // 2. 检查用户是否是评论的作者或管理员
     if (
-      review.user_id._id.toString() !== _id.toString() &&
+      String(review.user_id._id) !== String(_id) &&
       req.user.role !== "admin"
     ) {
       return res.status(403).json({
