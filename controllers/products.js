@@ -3,8 +3,8 @@ import verifyToken from "../middleware/verifyToken.js";
 import checkAdmin from "../middleware/checkAdmin.js";
 import { Product } from "../models/product.js";
 const router = express.Router();
-// ========= Protected Routes =========
-router.get("/", verifyToken, async (req, res) => {
+
+router.get("/", async (req, res) => {
   try {
     const products = await Product.find({ isDeleted: false });
     if (products.length === 0) {
@@ -17,7 +17,7 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
-router.get("/:productId", verifyToken, async (req, res) => {
+router.get("/:productId", async (req, res) => {
   try {
     const products = await Product.findById(req.params.productId);
     res.status(200).json(products);
@@ -25,6 +25,7 @@ router.get("/:productId", verifyToken, async (req, res) => {
     res.status(500).json(error);
   }
 });
+// ========= Protected Routes =========
 // Only admin can create products
 router.post("/", verifyToken, checkAdmin, async (req, res) => {
   try {
