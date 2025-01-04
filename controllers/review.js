@@ -6,7 +6,7 @@ import Order from "../models/order.js";
 const router = express.Router();
 
 // ========= Protected Routes =========
-router.get("/:productId", verifyToken, async (req, res) => {
+router.get("/:productId", async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId).populate(
       "reviews.user_id",
@@ -16,7 +16,9 @@ router.get("/:productId", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "The product not found" });
     }
 
-    const { _id, role } = req.user;
+    const _id = req.user?._id || null
+    const role =req.user?.role || null
+  
     const reviews = product.reviews.map((review) => {
       // 判断是否有权限操作评论
       let isOperate = false;
@@ -27,7 +29,7 @@ router.get("/:productId", verifyToken, async (req, res) => {
       }
 
       // 如果是普通用户，且该评论属于该用户
-      if (review.user_id.toString() === _id.toString()) {
+      if (review.user_id == _id) {
         isOperate = true;
       }
 
